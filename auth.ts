@@ -5,7 +5,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
-import bcrypt from 'bcryptjs';
+import bcrypt from 'bcryptjs'; // Pastikan pakai bcryptjs
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -17,18 +17,13 @@ async function getUser(email: string): Promise<User | undefined> {
   }
 }
 
-// Bagian ini tadi melayang di luar, sekarang sudah dihapus karena sudah ada di dalam authorize
-
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
   providers: [
     Credentials({
       async authorize(credentials) {
         const parsedCredentials = z
-          .object({ 
-            email: z.string().email(), 
-            password: z.string().min(6) 
-          })
+          .object({ email: z.string().email(), password: z.string().min(6) })
           .safeParse(credentials);
 
         if (parsedCredentials.success) {
@@ -36,16 +31,11 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           const user = await getUser(email);
           if (!user) return null;
           
-          // Membandingkan password input dengan hash di database
           const passwordsMatch = await bcrypt.compare(password, user.password);
           if (passwordsMatch) return user;
         }
-
-        console.log('Invalid credentials');
         return null;
       },
     }),
   ],
-  // Pastikan AUTH_SECRET terbaca dengan benar
-  secret: process.env.AUTH_SECRET,
 });
