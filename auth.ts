@@ -5,7 +5,7 @@ import Credentials from 'next-auth/providers/credentials';
 import { z } from 'zod';
 import { sql } from '@vercel/postgres';
 import type { User } from '@/app/lib/definitions';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 
 async function getUser(email: string): Promise<User | undefined> {
   try {
@@ -16,6 +16,8 @@ async function getUser(email: string): Promise<User | undefined> {
     throw new Error('Failed to fetch user.');
   }
 }
+
+// Bagian ini tadi melayang di luar, sekarang sudah dihapus karena sudah ada di dalam authorize
 
 export const { auth, signIn, signOut, handlers } = NextAuth({
   ...authConfig,
@@ -34,6 +36,7 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
           const user = await getUser(email);
           if (!user) return null;
           
+          // Membandingkan password input dengan hash di database
           const passwordsMatch = await bcrypt.compare(password, user.password);
           if (passwordsMatch) return user;
         }
@@ -43,7 +46,6 @@ export const { auth, signIn, signOut, handlers } = NextAuth({
       },
     }),
   ],
-  // Menggunakan AUTH_SECRET sebagai standar utama NextAuth v5
+  // Pastikan AUTH_SECRET terbaca dengan benar
   secret: process.env.AUTH_SECRET,
-  trustHost: true,
 });
