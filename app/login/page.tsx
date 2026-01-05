@@ -9,7 +9,7 @@ import {
 import { ArrowRightIcon } from '@heroicons/react/20/solid';
 import { Button } from '@/app/ui/button';
 import { useActionState } from 'react';
-import { authenticate } from 'app/lib/actions'; //autentikasi
+import { authenticate } from '@/app/lib/actions'; //autentikasi
 
 export default function Page() {
     const [errorMessage, formAction, isPending] = useActionState(
